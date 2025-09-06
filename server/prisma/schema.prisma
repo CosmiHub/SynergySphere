@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL") 
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(191)
+  email     String    @unique
+  password  String
+
+  // Auth helpers
+  password_reset_token String?
+  token_sent_at        DateTime?
+  email_verified_at    DateTime?
+  email_verify_token   String?
+
+  // Relations
+  ownedProjects Project[]       @relation("ProjectOwner")
+  managedProjects Project[]     @relation("ProjectManager")
+  memberships    ProjectMember[]
+  tasks          Task[]         @relation("TaskAssignee")
+  messages       Message[]
+  notifications  Notification[]
+
+  created_at DateTime @default(now())
+}
+
+model Project {
+  id          Int             @id @default(autoincrement())
+  name        String          @db.VarChar(191)
+  description String?
+  deadline    DateTime?
+  created_at  DateTime        @default(now())
+
+  // Relations
+  ownerId   Int
+  owner     User              @relation("ProjectOwner", fields: [ownerId], references: [id])
+
+  managerId Int?
+  manager   User?             @relation("ProjectManager", fields: [managerId], references: [id])
+
+  members   ProjectMember[]
+  tasks     Task[]
+  messages  Message[]
+}
+
+model ProjectMember {
+  id        Int     @id @default(autoincrement())
+  role      String  @default("member") 
+  joinedAt  DateTime @default(now())
+
+  // Relations
+  userId    Int
+  projectId Int
+  user      User    @relation(fields: [userId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId]) 
+}
+
+model Task {
+  id          Int         @id @default(autoincrement())
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime     @default(now())
+
+ 
+  imageUrl   String?       
+  attachments Attachment[] 
+
+  
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id])
+
+  assigneeId Int?
+  assignee   User?   @relation("TaskAssignee", fields: [assigneeId], references: [id])
+
+ 
+  tags TaskTag[]
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  url       String
+  type      String?  
+  createdAt DateTime @default(now())
+
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id])
+}
+
+model Tag {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+
+  tasks TaskTag[]
+}
+
+model TaskTag {
+  taskId Int
+  tagId  Int
+
+  task Task @relation(fields: [taskId], references: [id])
+  tag  Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([taskId, tagId]) 
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId    Int
+  projectId Int
+  user      User    @relation(fields: [userId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  type      String   
+  content   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}

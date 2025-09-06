@@ -10,3 +10,5 @@ build/
 .next/
 
 
+
+/src/generated/prisma
