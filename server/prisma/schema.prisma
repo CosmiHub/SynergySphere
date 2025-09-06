@@ -38,6 +38,8 @@ model Project {
   description String?
   deadline    DateTime?
   created_at  DateTime        @default(now())
+  status      TaskStatus     
+  priority    TaskPriority    @default(MEDIUM)
 
   // Relations
   ownerId   Int
