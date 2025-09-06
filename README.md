@@ -1,73 +1,90 @@
-# Welcome to your Lovable project
+# SynergySphere
 
-## Project info
+**SynergySphere** is a collaborative project management tool built with modern technologies like Express.js, Prisma, PostgreSQL for the backend, and React/Next.js for the frontend. It enables users to manage projects, tasks, messages, notifications, and team collaborations seamlessly.
 
-**URL**: https://lovable.dev/projects/0954ed0a-2e1d-4542-aea6-44738ffc96b7
+---
 
-## How can I edit this code?
+## 🚀 Tech Stack
 
-There are several ways of editing your application.
+**Backend**
+- Node.js
+- Express.js
+- Prisma ORM
+- PostgreSQL
+- JWT for authentication
 
-**Use Lovable**
+**Frontend**
+- React.js / Next.js
+- Tailwind CSS (optional styling)
+- Axios / Fetch for API requests
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0954ed0a-2e1d-4542-aea6-44738ffc96b7) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📂 Project Structure
 
-**Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## ⚙ Backend Setup
 
-Follow these steps:
+### 1. Install dependencies
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+cd server
+npm install
+npx prisma generate
+npx prisma migrate dev --name init
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+📂 Backend Routes
+Authentication
 
-**Use GitHub Codespaces**
+POST /auth/login
+Login using email and password. Returns a JWT token.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+POST /auth/register
+Register a new user.
 
-## What technologies are used for this project?
+Projects
 
-This project is built with:
+POST /projects
+Create a new project
+Body: { name, description, deadline, status, priority, managerId }
+Requires authentication.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+GET /projects
+Get all projects with details
+Requires authentication.
 
-## How can I deploy this project?
+Tasks
 
-Simply open [Lovable](https://lovable.dev/projects/0954ed0a-2e1d-4542-aea6-44738ffc96b7) and click on Share -> Publish.
+POST /tasks
+Create a new task
+Body: { title, description, status, priority, dueDate, projectId, assigneeId }
 
-## Can I connect a custom domain to my Lovable project?
+GET /tasks/:id
+Get a task by ID
 
-Yes, you can!
+Messages
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+POST /messages
+Send a new message in a project
+Body: { content, projectId }
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+GET /messages/:projectId
+Get all messages for a project
+
+Notifications
+
+GET /notifications
+Get user notifications
+Requires authentication.
+
+PUT /notifications/:id/read
+Mark a notification as read.
+
+Users
+
+GET /users/me
+Get current authenticated user details.
